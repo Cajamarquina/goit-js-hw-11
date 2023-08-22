@@ -6,7 +6,6 @@ import "simplelightbox/dist/simple-lightbox.min.css";
 const API_KEY = 'YOUR_API_KEY';
 const API_URL = "https://pixabay.com/api/";
 const gallery = document.querySelector(".gallery");
-const loadMoreBtn = document.querySelector(".load-more");
 const searchForm = document.getElementById("search-form");
 
 let currentPage = 1;
@@ -34,8 +33,6 @@ async function fetchImages(query, page) {
 }
 
 function renderImages(images) {
-  gallery.innerHTML = ""; // Clear previous content
-
   images.forEach((image) => {
     const card = document.createElement("div");
     card.className = "photo-card";
@@ -66,12 +63,7 @@ function renderImages(images) {
   lightbox.refresh();
 }
 
-function toggleLoadMoreButton(show) {
-  loadMoreBtn.style.display = show ? "block" : "none";
-}
-
 function handleEndOfResults() {
-  toggleLoadMoreButton(false);
   notiflix.Notify.info("We're sorry, but you've reached the end of search results.");
 }
 
@@ -91,22 +83,39 @@ searchForm.addEventListener("submit", async (event) => {
   const data = await fetchImages(currentQuery, currentPage);
 
   if (data && data.hits.length > 0) {
+    gallery.innerHTML = ""; // Clear previous content
     renderImages(data.hits);
     notiflix.Notify.success(`Hooray! We found ${data.totalHits} images.`);
-    toggleLoadMoreButton(true);
+    window.scrollTo({ top: 0, behavior: "smooth" }); // Scroll to top
   } else {
     notiflix.Notify.failure("Sorry, there are no images matching your search query. Please try again.");
-    toggleLoadMoreButton(false);
   }
 });
 
-loadMoreBtn.addEventListener("click", async () => {
-  currentPage++;
-  const data = await fetchImages(currentQuery, currentPage);
+let loadingImages = false;
 
+async function loadMoreImages() {
+  if (loadingImages) return;
+  
+  loadingImages = true;
+  currentPage++;
+  
+  const data = await fetchImages(currentQuery, currentPage);
+  
   if (data && data.hits.length > 0) {
     renderImages(data.hits);
+    loadingImages = false;
   } else {
     handleEndOfResults();
+    window.removeEventListener("scroll", infiniteScroll);
   }
-});
+}
+
+function infiniteScroll() {
+  const { scrollTop, clientHeight, scrollHeight } = document.documentElement;
+  if (scrollHeight - scrollTop === clientHeight) {
+    loadMoreImages();
+  }
+}
+
+window.addEventListener("scroll", infiniteScroll);
