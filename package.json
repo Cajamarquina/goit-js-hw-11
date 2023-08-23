@@ -23,6 +23,7 @@
     "modern-normalize": "^1.1.0",
     "notiflix": "^3.2.6",
     "observer": "^0.0.2",
+    "simple-lightbox": "^2.1.0",
     "simplelightbox": "^2.14.1"
   },
   "devDependencies": {

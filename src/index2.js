@@ -1,3 +1,5 @@
+//Initial working JS not included in the main one. TEST CODE
+
 import axios from "axios";
 import notiflix from "notiflix";
 import SimpleLightbox from "simplelightbox";
