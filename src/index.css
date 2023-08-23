@@ -3,6 +3,10 @@
    padding: 0;
  }
 
+ #body {
+  width: 1158px;
+ }
+
 .search-form {
     background-color: rgb(64, 84, 195);
     display: flex;
@@ -48,3 +52,28 @@
   .load-more{
     visibility: hidden;
   }
+
+
+  .gallery {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px 20px;
+    padding-top:10px;
+  }
+
+
+#img {
+  padding-bottom:10px;
+}
+
+.photo-card {
+  border: 1px solid #000000;
+  box-shadow: 2px 2px #858383
+}
+
+.info {;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  padding-left: 16px;
+}
