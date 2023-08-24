@@ -7,12 +7,13 @@ function renderImages(images, galleryElement) {
     images.forEach((image) => {
         const card = document.createElement("div");
         card.className = "photo-card";
-    
+       
         const img = document.createElement("img");
         img.src = image.webformatURL;
         img.alt = image.tags;
         img.loading = "lazy";
         img.style.width = "100%";
+
 
         const info = document.createElement("div");
         info.className = "info";

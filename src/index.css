@@ -74,9 +74,9 @@
 .info {;
   display: flex;
   flex-direction: row;
-  justify-content: space-between;
-  padding-left: 16px;
+  justify-content: center;
   padding-bottom:10px;
+  gap: 20px;
 }
 
 .info-item {
