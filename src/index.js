@@ -5,14 +5,18 @@ import handleSearchFormSubmit from "./search-form";
 import SimpleLightbox from "simplelightbox";
 import "simplelightbox/dist/simple-lightbox.min.css";
 
+document.addEventListener("DOMContentLoaded", function () {
 const gallery = document.querySelector(".gallery");
 const searchForm = document.getElementById("search-form");
+const searchInput = searchForm.querySelector(".input-form");
 
 let currentPage = 1;
 let currentQuery = "";
 
 // Initialize SimpleLightbox for new images
-const lightbox = new SimpleLightbox(".gallery a"); 
+const lightbox = new SimpleLightbox(".gallery a", {
+  docClose: true, // Close lightbox with a single click outside the image
+}); 
 
 const observer = new IntersectionObserver((entries) => {
   entries.forEach((entry) => {
@@ -52,7 +56,7 @@ function handleEndOfResults() {
 
 searchForm.addEventListener("submit", async (event) => {
   event.preventDefault(); // Prevent default form submission
-  currentQuery = searchForm.query.value; // Get the query from the form input
+  currentQuery = searchInput.value; // Get the query from the form input
   currentPage = 1; // Reset the page when performing a new search
   gallery.innerHTML = ""; // Clear the gallery
   await fetchAndRenderImages(currentQuery, currentPage);
@@ -68,4 +72,5 @@ window.addEventListener("scroll", () => {
     loadMoreImages();
     lightbox.refresh(); // Refresh lightbox after infinite scroll
   }
+});
 });

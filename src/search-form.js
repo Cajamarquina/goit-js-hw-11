@@ -4,10 +4,10 @@ import renderImages from "./render-images";
 
 async function handleSearchFormSubmit(event, currentPage, currentQuery, galleryElement, searchFormElement) {
   event.preventDefault();
-  const formData = new FormData(searchFormElement);
-  const query = formData.get("searchQuery");
+  const searchInput = searchFormElement.querySelector(".input-form");
+  const query = searchInput.value.trim();
 
-  if (query.trim() === "") {
+  if (query === "") {
     notiflix.Notify.failure("Please enter a valid search query.");
     return;
   }
@@ -28,5 +28,6 @@ async function handleSearchFormSubmit(event, currentPage, currentQuery, galleryE
 }
 
 export default handleSearchFormSubmit;
+
 
 
