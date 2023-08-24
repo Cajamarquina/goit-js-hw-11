@@ -73,4 +73,12 @@ window.addEventListener("scroll", () => {
     lightbox.refresh(); // Refresh lightbox after infinite scroll
   }
 });
+
+const lightboxLinks = document.querySelectorAll(".gallery a");
+lightboxLinks.forEach((link) => {
+  link.addEventListener("click", (event) => {
+    event.preventDefault();
+    lightbox.close();
+  });
+});
 });
