@@ -14,9 +14,7 @@ let currentPage = 1;
 let currentQuery = "";
 
 // Initialize SimpleLightbox for new images
-const lightbox = new SimpleLightbox(".gallery a", {
-  docClose: true, // Close lightbox with a single click outside the image
-}); 
+const lightbox = new SimpleLightbox(".gallery a"); 
 
 const observer = new IntersectionObserver((entries) => {
   entries.forEach((entry) => {
