@@ -13,9 +13,6 @@ const searchInput = searchForm.querySelector(".input-form");
 let currentPage = 1;
 let currentQuery = "";
 
-// Initialize SimpleLightbox for new images
-const lightbox = new SimpleLightbox(".gallery a"); 
-
 const observer = new IntersectionObserver((entries) => {
   entries.forEach((entry) => {
     if (entry.isIntersecting) {
