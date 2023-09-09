@@ -15,6 +15,7 @@ const searchInput = searchForm.querySelector(".input-form");
 let currentPage = 1;
 let currentQuery = "";
 let observer; // Declare the observer at a higher scope
+let noMoreResultsNotified = false; // Initialize the flag
 
 function loadMoreImages() {
   currentPage++;
@@ -27,8 +28,9 @@ async function fetchAndRenderImages(query, page) {
     if (data && data.hits.length > 0) {
       renderImages(data.hits, gallery);
       lightbox.refresh(); // Refresh lightbox after rendering new images
-    } else {
+    } else if (!noMoreResultsNotified) {
       handleEndOfResults();
+      noMoreResultsNotified = true; // Set the flag to true to avoid duplicate messages
     }
   } catch (error) {
     console.error("Error fetching images:", error);
