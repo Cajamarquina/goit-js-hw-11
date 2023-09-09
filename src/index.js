@@ -5,6 +5,8 @@ import handleSearchFormSubmit from "./search-form";
 import SimpleLightbox from "simplelightbox";
 import "simplelightbox/dist/simple-lightbox.min.css";
 
+const lightbox = new SimpleLightbox(".gallery a[data-lightbox='gallery']");
+
 document.addEventListener("DOMContentLoaded", function () {
 const gallery = document.querySelector(".gallery");
 const searchForm = document.getElementById("search-form");
@@ -12,19 +14,7 @@ const searchInput = searchForm.querySelector(".input-form");
 
 let currentPage = 1;
 let currentQuery = "";
-
-const observer = new IntersectionObserver((entries) => {
-  entries.forEach((entry) => {
-    if (entry.isIntersecting) {
-      loadMoreImages();
-    }
-  });
-}, {
-  rootMargin: "0px",
-  threshold: 0.1,
-});
-
-observer.observe(gallery);
+let observer; // Declare the observer at a higher scope
 
 function loadMoreImages() {
   currentPage++;
@@ -50,15 +40,41 @@ function handleEndOfResults() {
 }
 
 searchForm.addEventListener("submit", async (event) => {
-  event.preventDefault(); // Prevent default form submission
-  currentQuery = searchInput.value; // Get the query from the form input
-  currentPage = 1; // Reset the page when performing a new search
-  gallery.innerHTML = ""; // Clear the gallery
-  await fetchAndRenderImages(currentQuery, currentPage);
+  event.preventDefault();
+  currentQuery = searchInput.value.trim();
+  currentPage = 1;
+  gallery.innerHTML = "";
+  await handleSearchFormSubmit(event, currentPage, currentQuery, gallery, searchForm);
 });
 
-// Initial load
-fetchAndRenderImages(currentQuery, currentPage);
+async function startObserver() {
+  observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting && currentQuery) {
+        loadMoreImages();
+      }
+    });
+  }, {
+    rootMargin: "0px",
+    threshold: 0.1,
+  });
+
+  observer.observe(gallery);
+}
+
+searchForm.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  currentQuery = searchInput.value.trim();
+  currentPage = 1;
+  gallery.innerHTML = "";
+
+  if (observer) {
+    observer.disconnect(); // Stop observing before starting a new search
+  }
+
+  await handleSearchFormSubmit(event, currentPage, currentQuery, gallery, searchForm);
+  startObserver(); // Start observing after the search results are loaded
+});
 
 // Attach infinite scroll event listener
 window.addEventListener("scroll", () => {

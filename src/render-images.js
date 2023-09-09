@@ -2,58 +2,63 @@ import SimpleLightbox from "simplelightbox";
 import "simplelightbox/dist/simple-lightbox.min.css";
 
 function renderImages(images, galleryElement) {
-    galleryElement.innerHTML = ''; 
-  
-    images.forEach((image) => {
-        const card = document.createElement("div");
-        card.className = "photo-card";
+  const cards = []; // Array to store card elements
 
-        // Wrap the image in an anchor tag
-        const imageLink = document.createElement("a");
-        imageLink.href = image.webformatURL; // Set the image URL as the href
-        imageLink.setAttribute("data-lightbox", "gallery"); // Set data-lightbox attribute for SimpleLightbox
+  images.forEach((image) => {
+    const card = document.createElement("div");
+    card.className = "photo-card";
 
-        const img = document.createElement("img");
-        img.src = image.webformatURL;
-        img.alt = image.tags;
-        img.loading = "lazy";
-        img.style.width = "100%";
+    const imageLink = document.createElement("a");
+    imageLink.href = image.webformatURL;
+    imageLink.setAttribute("data-lightbox", "gallery");
 
-        imageLink.appendChild(img); // Append the image to the anchor
+    const img = document.createElement("img");
+    img.src = image.webformatURL;
+    img.alt = image.tags;
+    img.loading = "lazy";
+    img.style.width = "100%";
 
-        const info = document.createElement("div");
-        info.className = "info";
+    imageLink.appendChild(img);
 
-        const infoItems = [
-            { key: "likes", label: "Likes" },
-            { key: "views", label: "Views" },
-            { key: "comments", label: "Comments" },
-            { key: "downloads", label: "Downloads" },
-        ];
+    const info = document.createElement("div");
+    info.className = "info";
 
-        infoItems.forEach((item) => {
-            const p = document.createElement("p");
-            p.className = "info-item";
+    const infoItems = [
+      { key: "likes", label: "Likes" },
+      { key: "views", label: "Views" },
+      { key: "comments", label: "Comments" },
+      { key: "downloads", label: "Downloads" },
+    ];
 
-            const labelSpan = document.createElement("span");
-            labelSpan.textContent = item.label + ": ";
-            p.appendChild(labelSpan);
+    infoItems.forEach((item) => {
+      const p = document.createElement("p");
+      p.className = "info-item";
 
-            const valueSpan = document.createElement("span");
-            valueSpan.textContent = image[item.key];
-            p.appendChild(valueSpan);
+      const labelSpan = document.createElement("span");
+      labelSpan.textContent = item.label + ": ";
+      p.appendChild(labelSpan);
 
-            info.appendChild(p);
-        });
+      const valueSpan = document.createElement("span");
+      valueSpan.textContent = image[item.key];
+      p.appendChild(valueSpan);
 
-        card.appendChild(imageLink); // Append the anchor (containing the image) to the card
-        card.appendChild(info);
-        galleryElement.appendChild(card);
+      info.appendChild(p);
     });
 
-    // Refresh the lightbox after rendering images
-    const lightbox = new SimpleLightbox(".gallery a[data-lightbox='gallery']");
-    lightbox.refresh();
+    card.appendChild(imageLink);
+    card.appendChild(info);
+
+    cards.push(card); // Add the card to the array
+  });
+
+  // Append all cards to the gallery element at once
+  cards.forEach((card) => {
+    galleryElement.appendChild(card);
+  });
+
+  // Refresh the lightbox after rendering images
+  const lightbox = new SimpleLightbox(".gallery a[data-lightbox='gallery']");
+  lightbox.refresh();
 }
 
 export default renderImages;
