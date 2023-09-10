@@ -1,6 +1,6 @@
 import notiflix from "notiflix";
 import fetchImages from "./pixabay-api";
-import renderImages from "./render-images";
+import { renderImages } from "./render-images";
 import handleSearchFormSubmit from "./search-form";
 import SimpleLightbox from "simplelightbox";
 import "simplelightbox/dist/simple-lightbox.min.css";
@@ -24,13 +24,15 @@ function loadMoreImages() {
 
 async function fetchAndRenderImages(query, page) {
   try {
-    const data = await fetchImages(query, page);
-    if (data && data.hits.length > 0) {
-      renderImages(data.hits, gallery);
-      lightbox.refresh(); // Refresh lightbox after rendering new images
-    } else if (!noMoreResultsNotified) {
-      handleEndOfResults();
-      noMoreResultsNotified = true; // Set the flag to true to avoid duplicate messages
+    if (page === currentPage) {
+      const data = await fetchImages(query, page);
+      if (data && data.hits.length > 0) {
+        renderImages(data.hits, gallery);
+        lightbox.refresh();
+      } else if (!noMoreResultsNotified) {
+        handleEndOfResults();
+        noMoreResultsNotified = true;
+      }
     }
   } catch (error) {
     console.error("Error fetching images:", error);

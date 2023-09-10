@@ -20,11 +20,12 @@
   "dependencies": {
     "axios": "^1.4.0",
     "buffer": "^6.0.3",
+    "lightbox": "^0.5.0",
     "modern-normalize": "^1.1.0",
     "notiflix": "^3.2.6",
     "observer": "^0.0.2",
     "simple-lightbox": "^2.1.0",
-    "simplelightbox": "^2.14.1"
+    "simplelightbox": "^2.14.2"
   },
   "devDependencies": {
     "@parcel/transformer-sass": "^2.6.0",

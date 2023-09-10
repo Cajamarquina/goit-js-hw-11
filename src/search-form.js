@@ -1,6 +1,6 @@
 import notiflix from "notiflix";
 import fetchImages from "./pixabay-api";
-import renderImages from "./render-images";
+import { renderImages } from "./render-images";
 
 async function handleSearchFormSubmit(event, currentPage, currentQuery, galleryElement, searchFormElement) {
   event.preventDefault();
