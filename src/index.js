@@ -56,6 +56,7 @@ async function startObserver() {
     entries.forEach((entry) => {
       if (entry.isIntersecting && currentQuery) {
         loadMoreImages();
+        lightbox.refresh(); 
       }
     });
   }, {

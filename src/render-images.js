@@ -8,7 +8,9 @@ export function renderImages(images, galleryElement) {
   // Create a document fragment to hold the cards
   const fragment = document.createDocumentFragment();
 
-  for (const image of images) {
+  for (let i = 0; i < images.length; i++) {
+    const image = images[i];
+
     // Create the card element
     const card = document.createElement("div");
     card.className = "photo-card";
@@ -31,7 +33,8 @@ export function renderImages(images, galleryElement) {
       { key: "downloads", label: "Downloads" },
     ];
 
-    for (const item of infoItems) {
+    for (let j = 0; j < infoItems.length; j++) {
+      const item = infoItems[j];
       const p = document.createElement("p");
       p.className = "info-item";
 
