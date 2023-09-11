@@ -1,9 +1,11 @@
 import SimpleLightbox from "simplelightbox";
 import "simplelightbox/dist/simple-lightbox.min.css";
 
-export function renderImages(images, galleryElement) {
-  // Clear the gallery element before appending new images
-  galleryElement.innerHTML = "";
+export function renderImages(images, galleryElement, clearGallery = false) {
+  // If clearGallery is true, clear the gallery before appending new images
+  if (clearGallery) {
+    galleryElement.innerHTML = "";
+  }
 
   // Create a document fragment to hold the cards
   const fragment = document.createDocumentFragment();
@@ -14,6 +16,11 @@ export function renderImages(images, galleryElement) {
     // Create the card element
     const card = document.createElement("div");
     card.className = "photo-card";
+
+     // Create the anchor element for the lightbox
+     const lightboxLink = document.createElement("a");
+     lightboxLink.href = image.webformatURL;
+     lightboxLink.dataset.lightbox = "gallery";
 
     // Create the image element
     const img = document.createElement("img");
@@ -49,18 +56,23 @@ export function renderImages(images, galleryElement) {
       info.appendChild(p);
     }
 
-    // Append the image and info elements to the card element
-    card.appendChild(img);
-    card.appendChild(info);
+   // Append the image to the lightbox anchor element
+   lightboxLink.appendChild(img);
 
-    // Append the card element to the document fragment
-    fragment.appendChild(card);
-  }
+   // Append the lightbox anchor element to the card element
+   card.appendChild(lightboxLink);
 
-  // Append the document fragment to the gallery
-  galleryElement.appendChild(fragment);
+   // Append the info element to the card element
+   card.appendChild(info);
 
-  // Refresh the lightbox after rendering images
-  const lightbox = new SimpleLightbox(".gallery a[data-lightbox='gallery']");
-  lightbox.refresh();
+   // Append the card element to the document fragment
+   fragment.appendChild(card);
+ }
+
+ // Append the document fragment to the gallery
+ galleryElement.appendChild(fragment);
+
+ // Initialize the lightbox after rendering images
+ const lightbox = new SimpleLightbox(".gallery a[data-lightbox='gallery']");
+ lightbox.refresh();
 }

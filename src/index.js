@@ -44,42 +44,34 @@ function handleEndOfResults() {
 }
 
 searchForm.addEventListener("submit", async (event) => {
-  event.preventDefault();
-  currentQuery = searchInput.value.trim();
-  currentPage = 1;
-  gallery.innerHTML = "";
-  await handleSearchFormSubmit(event, currentPage, currentQuery, gallery, searchForm);
-});
+    event.preventDefault();
+    currentQuery = searchInput.value.trim();
+    currentPage = 1;
+    gallery.innerHTML = "";
 
-async function startObserver() {
-  observer = new IntersectionObserver((entries) => {
-    entries.forEach((entry) => {
-      if (entry.isIntersecting && currentQuery) {
-        loadMoreImages();
-        lightbox.refresh(); 
-      }
-    });
-  }, {
-    rootMargin: "0px",
-    threshold: 0.1,
+    if (observer) {
+      observer.disconnect(); // Stop observing before starting a new search
+    }
+
+    await handleSearchFormSubmit(event, currentPage, currentQuery, gallery, searchForm);
+    startObserver(); // Start observing after the search results are loaded
   });
 
-  observer.observe(gallery);
-}
+  async function startObserver() {
+    observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting && currentQuery) {
+          loadMoreImages();
+          lightbox.refresh();
+        }
+      });
+    }, {
+      rootMargin: "0px",
+      threshold: 0.1,
+    });
 
-searchForm.addEventListener("submit", async (event) => {
-  event.preventDefault();
-  currentQuery = searchInput.value.trim();
-  currentPage = 1;
-  gallery.innerHTML = "";
-
-  if (observer) {
-    observer.disconnect(); // Stop observing before starting a new search
+    observer.observe(gallery);
   }
-
-  await handleSearchFormSubmit(event, currentPage, currentQuery, gallery, searchForm);
-  startObserver(); // Start observing after the search results are loaded
-});
 
 // Attach infinite scroll event listener
 window.addEventListener("scroll", () => {
