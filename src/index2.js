@@ -1,69 +1,44 @@
 //Initial working JS not included in the main one. TEST CODE
 
-import axios from "axios";
 import notiflix from "notiflix";
+import fetchImages from "./pixabay-api";
+import { renderImages } from "./render-images";
+import handleSearchFormSubmit from "./search-form";
 import SimpleLightbox from "simplelightbox";
 import "simplelightbox/dist/simple-lightbox.min.css";
 
-const API_KEY = '38986046-b9c5577e52cca94c56fe7a79b';
-const API_URL = "https://pixabay.com/api/";
+const lightbox = new SimpleLightbox(".gallery a[data-lightbox='gallery']");
+
+document.addEventListener("DOMContentLoaded", function () {
 const gallery = document.querySelector(".gallery");
 const searchForm = document.getElementById("search-form");
+const searchInput = searchForm.querySelector(".input-form");
 
 let currentPage = 1;
 let currentQuery = "";
+let observer; // Declare the observer at a higher scope
+let noMoreResultsNotified = false; // Initialize the flag
 
-async function fetchImages(query, page) {
-  try {
-    const response = await axios.get(API_URL, {
-      params: {
-        key: API_KEY,
-        q: query,
-        image_type: "photo",
-        orientation: "horizontal",
-        safesearch: true,
-        per_page: 12,
-        page: page,
-      },
-    });
-
-    return response.data;
-  } catch (error) {
-    console.error("Error fetching images:", error);
-    return null;
-  }
+function loadMoreImages() {
+  currentPage++;
+  fetchAndRenderImages(currentQuery, currentPage);
 }
 
-function renderImages(images) {
-  images.forEach((image) => {
-    const card = document.createElement("div");
-    card.className = "photo-card";
-
-    const img = document.createElement("img");
-    img.src = image.webformatURL;
-    img.alt = image.tags;
-    img.loading = "lazy";
-    img.style.width = "100%";
-
-    const info = document.createElement("div");
-    info.className = "info";
-
-    const infoItems = ["likes", "views", "comments", "downloads"];
-    infoItems.forEach((item) => {
-      const p = document.createElement("p");
-      p.className = "info-item";
-      p.innerHTML = `<b>${item.charAt(0).toUpperCase() + item.slice(1)}</b>: ${image[item]}`;
-      info.appendChild(p);
-    });
-
-    card.appendChild(img);
-    card.appendChild(info);
-    gallery.appendChild(card);
-  });
-
-  // Initialize SimpleLightbox for new images
-  const lightbox = new SimpleLightbox(".gallery a");
-  lightbox.refresh();
+async function fetchAndRenderImages(query, page) {
+  try {
+    if (page === currentPage) {
+      const data = await fetchImages(query, page);
+      if (data && data.hits.length > 0) {
+        renderImages(data.hits, gallery);
+        lightbox.refresh();
+      } else if (!noMoreResultsNotified) {
+        handleEndOfResults();
+        noMoreResultsNotified = true;
+      }
+    }
+  } catch (error) {
+    console.error("Error fetching images:", error);
+  }
 }
 
 function handleEndOfResults() {
@@ -71,58 +46,52 @@ function handleEndOfResults() {
 }
 
 searchForm.addEventListener("submit", async (event) => {
-  event.preventDefault();
-  const formData = new FormData(searchForm);
-  const query = formData.get("searchQuery");
+    event.preventDefault();
+    currentQuery = searchInput.value.trim();
+    currentPage = 1;
+    gallery.innerHTML = "";
 
-  if (query.trim() === "") {
-    notiflix.Notify.failure("Please enter a valid search query.");
-    return;
+    if (observer) {
+      observer.disconnect(); // Stop observing before starting a new search
+    }
+
+    await handleSearchFormSubmit(event, currentPage, currentQuery, gallery, searchForm);
+    startObserver(); // Start observing after the search results are loaded
+  });
+
+  async function startObserver() {
+    observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting && currentQuery) {
+          loadMoreImages();
+          lightbox.refresh();
+        }
+      });
+    }, {
+      rootMargin: "0px",
+      threshold: 0.1,
+    });
+
+    observer.observe(gallery);
   }
 
-  currentQuery = query;
-  currentPage = 1;
-
-  const data = await fetchImages(currentQuery, currentPage);
-
-  if (data && data.hits.length > 0) {
-    gallery.innerHTML = ""; // Clear previous content
-    renderImages(data.hits);
-    notiflix.Notify.success(`Hooray! We found ${data.totalHits} images.`);
-    window.scrollTo({ top: 0, behavior: "smooth" }); // Scroll to top
-  } else {
-    notiflix.Notify.failure("Sorry, there are no images matching your search query. Please try again.");
-  }
-});
-
-let loadingImages = false;
-
-async function loadMoreImages() {
-  if (loadingImages) return;
-  
-  loadingImages = true;
-  currentPage++;
-  
-  const data = await fetchImages(currentQuery, currentPage);
-  
-  if (data && data.hits.length > 0) {
-    renderImages(data.hits);
-    loadingImages = false;
-  } else {
-    handleEndOfResults();
-    window.removeEventListener("scroll", infiniteScroll);
-  }
-}
-
-function infiniteScroll() {
+// Attach infinite scroll event listener
+window.addEventListener("scroll", () => {
   const { scrollTop, clientHeight, scrollHeight } = document.documentElement;
   if (scrollHeight - scrollTop === clientHeight) {
     loadMoreImages();
+    lightbox.refresh(); // Refresh lightbox after infinite scroll
   }
-}
+});
 
-window.addEventListener("scroll", infiniteScroll);
-
+const lightboxLinks = document.querySelectorAll(".gallery a");
+lightboxLinks.forEach((link) => {
+  link.addEventListener("click", (event) => {
+    event.preventDefault();
+    lightbox.close();
+  });
+});
+});
 
 //render-images.js
 

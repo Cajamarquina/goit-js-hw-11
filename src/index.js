@@ -1,49 +1,48 @@
 import notiflix from "notiflix";
-import fetchImages from "./pixabay-api";
-import { renderImages } from "./render-images";
+import { renderImages , lightbox } from "./render-images";
 import handleSearchFormSubmit from "./search-form";
+import fetchImages from "./pixabay-api";
 import SimpleLightbox from "simplelightbox";
 import "simplelightbox/dist/simple-lightbox.min.css";
 
-const lightbox = new SimpleLightbox(".gallery a[data-lightbox='gallery']");
-
 document.addEventListener("DOMContentLoaded", function () {
-const gallery = document.querySelector(".gallery");
-const searchForm = document.getElementById("search-form");
-const searchInput = searchForm.querySelector(".input-form");
+  const gallery = document.querySelector(".gallery");
+  const searchForm = document.getElementById("search-form");
+  const searchInput = searchForm.querySelector(".input-form");
 
-let currentPage = 1;
-let currentQuery = "";
-let observer; // Declare the observer at a higher scope
-let noMoreResultsNotified = false; // Initialize the flag
+  let currentPage = 1;
+  let currentQuery = "";
+  let observer; // Declare the observer at a higher scope
 
-function loadMoreImages() {
-  currentPage++;
-  fetchAndRenderImages(currentQuery, currentPage);
-}
-
-async function fetchAndRenderImages(query, page) {
-  try {
-    if (page === currentPage) {
+  async function fetchAndRenderImages(query, page) {
+    try {
       const data = await fetchImages(query, page);
       if (data && data.hits.length > 0) {
-        renderImages(data.hits, gallery);
+        renderImages(data.hits, gallery, page === 1); // Clear gallery on the first page
         lightbox.refresh();
-      } else if (!noMoreResultsNotified) {
+
+        if (currentPage < Math.ceil(data.totalHits / data.hitsPerPage)) {
+          // Continue loading more images until we reach the last page
+          loadMoreImages();
+        }
+      } else {
         handleEndOfResults();
-        noMoreResultsNotified = true;
       }
+    } catch (error) {
+      console.error("Error fetching images:", error);
     }
-  } catch (error) {
-    console.error("Error fetching images:", error);
   }
-}
 
-function handleEndOfResults() {
-  notiflix.Notify.info("We're sorry, but you've reached the end of search results.");
-}
+  function handleEndOfResults() {
+    notiflix.Notify.info("You've reached the end of search results.");
+  }
 
-searchForm.addEventListener("submit", async (event) => {
+  async function loadMoreImages() {
+    currentPage++;
+    fetchAndRenderImages(currentQuery, currentPage);
+  }
+
+  searchForm.addEventListener("submit", async (event) => {
     event.preventDefault();
     currentQuery = searchInput.value.trim();
     currentPage = 1;
@@ -60,7 +59,7 @@ searchForm.addEventListener("submit", async (event) => {
   async function startObserver() {
     observer = new IntersectionObserver((entries) => {
       entries.forEach((entry) => {
-        if (entry.isIntersecting && currentQuery) {
+        if (entry.isIntersecting && currentQuery && currentPage > 1) {
           loadMoreImages();
           lightbox.refresh();
         }
@@ -73,20 +72,20 @@ searchForm.addEventListener("submit", async (event) => {
     observer.observe(gallery);
   }
 
-// Attach infinite scroll event listener
-window.addEventListener("scroll", () => {
-  const { scrollTop, clientHeight, scrollHeight } = document.documentElement;
-  if (scrollHeight - scrollTop === clientHeight) {
-    loadMoreImages();
-    lightbox.refresh(); // Refresh lightbox after infinite scroll
-  }
-});
-
-const lightboxLinks = document.querySelectorAll(".gallery a");
-lightboxLinks.forEach((link) => {
-  link.addEventListener("click", (event) => {
-    event.preventDefault();
-    lightbox.close();
+  // Attach infinite scroll event listener
+  window.addEventListener("scroll", () => {
+    const { scrollTop, clientHeight, scrollHeight } = document.documentElement;
+    if (scrollHeight - scrollTop === clientHeight) {
+      loadMoreImages();
+      lightbox.refresh(); // Refresh lightbox after infinite scroll
+    }
   });
-});
+
+  const lightboxLinks = document.querySelectorAll(".gallery a");
+  lightboxLinks.forEach((link) => {
+    link.addEventListener("click", (event) => {
+      event.preventDefault();
+      lightbox.close();
+    });
+  });
 });

@@ -73,6 +73,6 @@ export function renderImages(images, galleryElement, clearGallery = false) {
  galleryElement.appendChild(fragment);
 
  // Initialize the lightbox after rendering images
- const lightbox = new SimpleLightbox(".gallery a[data-lightbox='gallery']");
- lightbox.refresh();
+   const lightbox = new SimpleLightbox(".gallery a[data-lightbox='gallery']");
+   lightbox.refresh();
 }
