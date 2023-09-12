@@ -76,3 +76,5 @@ export function renderImages(images, galleryElement, clearGallery = false) {
    const lightbox = new SimpleLightbox(".gallery a[data-lightbox='gallery']");
    lightbox.refresh();
 }
+
+export { lightbox };
